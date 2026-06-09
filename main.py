@@ -11,22 +11,23 @@ def main():
         if opcion ==1:
             print("Alta de producto")
             altaProductos(infoproducto) #Mando la matriz en vez de mandar un montonazo de listas
+            
         elif opcion==2:
             print("Modificar stock")
-            if len(lst_codigos) > 0:
-                modificarStock(lst_codigos, lst_nombres, lst_stock)
+            if len(infoproducto[0]) > 0:
+                modificarStock(infoproducto)
             else:
                 print("No existe stock que modificar")
         elif opcion ==3:
             print("Eliminar")
-            if len(lst_codigos) > 0:
-                eliminar(lst_codigos, lst_nombres, lst_stock)
+            if len(infoproducto[0]) > 0:
+                eliminar(infoproducto)
             else:
                 print("No existen elementos para eliminar")
         elif opcion == 4:
             print("Informes")
-            if len(lst_codigos) > 0:
-                mostrarProductos(lst_codigos, lst_nombres, lst_stock)
+            if len(infoproducto[0]) > 0:
+                mostrarProductos(infoproducto)
             else:
                 print("No existen elementos")
         
