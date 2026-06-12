@@ -156,8 +156,8 @@ def altaProductos(infoproducto):
             while (cobertura.upper() != "SI") and (cobertura.upper() != "NO"):
                 cobertura = input("¿El producto posee cobertura medica? (Si/No) ")
             #vencimiento = 30 * random.randint(1,24) 
-            vencimiento = input("¿El producto posee cobertura medica? (Si/No) ")
-            print("Fecha aproximada de vencimiento:", vencimiento)
+            vencimiento = ingresarPositivo("Ingresar dias restantes aproximados para el vencimiento del producto ", True)
+            #print("Fecha aproximada de vencimiento:", vencimiento)
 
             #Meto todo en su respectiva fila de la matriz
             infoproducto[0].append(nombre)
