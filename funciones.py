@@ -1,19 +1,114 @@
 import random
 
-def imprimirMatriz(matriz): #Por si alguno quiere imprimir la matriz para ver como esta quedando o para el informe llame esta funcion, dando como parametro la matriz
+def imprimirMatriz(matriz):
+    '''Imprime una matriz de manera ordenada en forma de cuadro'''
     filas=len(matriz)
     col=len(matriz[0])
-    for f in range(filas):
-        for c in range(col):
-            print("%40s" %matriz[f][c], end="")
+    etiquetas = ["Nombre:", "Código:", "Laboratorio:", "Precio:", "Stock:", "Cobertura:", "Vencimiento:"]
+    #Imprimimos los encabezados primero (todos en la misma línea)
+    for e in etiquetas:
+        print("%-15s" % e, end="")
+    print()
+    print("-" * 105) # Una línea separadora
+
+    #Imprimimos la matriz de forma normal alineando las columnas
+    for c in range(col):
+        for f in range(filas):
+            print("%-15s" % str(matriz[f][c]), end="")
         print()
+        
 
 def opciones_menu():
-    print("1: Alta de Producto")
-    print("2: Modificar stock")
-    print("3: Eliminar stock")
-    print("4: Informes")
-    print("5: Salida")
+    '''Imprime todas las opciones del menu principal del programa'''
+    print("="*40)
+    print("SISTEMA DE GESTIÓN: PHARMACARE CENTRAL")
+    print("="*40)
+    print("1: Registrar nuevo medicamento")
+    print("2- Eliminar medicamento")
+    print("3: Modificar stock o precio")
+    print("4: Informe general / visualización de los datos")
+    print("5: Salir")
+    print("="*40)
+
+def ordenarLista(matriz):
+    '''Ordena la lista por fecha de vencimiento o nombre, si las fechas coinciden'''
+    cantidad_productos = len(matriz[0])
+    
+    for i in range(1, cantidad_productos):
+        nombre_insertar      = matriz[0][i]
+        codigo_insertar      = matriz[1][i]
+        laboratorio_insertar = matriz[2][i]
+        precio_insertar      = matriz[3][i]
+        stock_insertar       = matriz[4][i]
+        cobertura_insertar   = matriz[5][i]
+        vencimiento_insertar = matriz[6][i]
+
+        j = i
+        
+        
+        while j > 0 and matriz[6][j-1] >= vencimiento_insertar:
+            vencimiento_izq = matriz[6][j-1]
+            nombre_izq      = matriz[0][j-1]
+            
+            # CASO 1: Si el de la izquierda es mayor, hay que desplazar
+            if vencimiento_izq > vencimiento_insertar:
+                # Desplazamos las 7 categorías de j-1 hacia j
+                matriz[0][j] = matriz[0][j-1]
+                matriz[1][j] = matriz[1][j-1]
+                matriz[2][j] = matriz[2][j-1]
+                matriz[3][j] = matriz[3][j-1]
+                matriz[4][j] = matriz[4][j-1]
+                matriz[5][j] = matriz[5][j-1]
+                matriz[6][j] = matriz[6][j-1]
+                j = j - 1
+                
+            # CASO 2: Si los vencimientos son iguales, desempatamos por nombre
+            elif vencimiento_izq == vencimiento_insertar:
+                if nombre_izq > nombre_insertar:
+                    # Desplazamos las 7 categorías de j-1 hacia j
+                    matriz[0][j] = matriz[0][j-1]
+                    matriz[1][j] = matriz[1][j-1]
+                    matriz[2][j] = matriz[2][j-1]
+                    matriz[3][j] = matriz[3][j-1]
+                    matriz[4][j] = matriz[4][j-1]
+                    matriz[5][j] = matriz[5][j-1]
+                    matriz[6][j] = matriz[6][j-1]
+                    j = j - 1
+                
+        # Al salir del while, insertamos en el hueco final 'j'
+        matriz[0][j] = nombre_insertar
+        matriz[1][j] = codigo_insertar
+        matriz[2][j] = laboratorio_insertar
+        matriz[3][j] = precio_insertar
+        matriz[4][j] = stock_insertar
+        matriz[5][j] = cobertura_insertar
+        matriz[6][j] = vencimiento_insertar
+
+def buscarElemento(infoproducto, nombre):
+    '''Pide un producto y lo busca en la lista, fijandose si existe o no y en qué posición se encuentra'''
+    
+    if nombre == False:
+        codigo = input('Ingrese el codigo unico del producto (Ingrese "EXIT" para finalizar) ')
+        while not codigo.isalnum() or (len(codigo) < 4 or len(codigo) > 10): #Chequeo que este en el limite y sea alfanumerico
+
+            print("Error, codigo invalido")
+            print("El código debe contener solo caracteres alfanuméricos y debe tener entre 4 y 10 caractéres")
+            codigo=input('Ingrese un codigo unico para el producto (Ingrese "EXIT" para finalizar) ')
+
+        contador = 0
+        if len(infoproducto[1]) > 0: #Este if es para solucionar un index out of range
+            while contador < len(infoproducto[1]) and infoproducto[1][contador] != codigo: #Busco si ya existe el codigo
+                contador += 1
+    else:
+        codigo = input('Ingrese el codigo unico o el nombre del producto (Ingrese "EXIT" para finalizar) ')
+        contador = 0
+        if len(infoproducto[1]) > 0: #Este if es para solucionar un index out of range
+            while contador < len(infoproducto[1]) and (infoproducto[1][contador] != codigo or infoproducto[0][contador] != codigo): #Busco si ya existe el codigo
+                contador += 1
+
+    return codigo, contador
+
+    
 
 
 def ingresar_opcionMenu(desde, hasta):
@@ -43,21 +138,10 @@ def ingresarPositivo(msg, entero):
 #Esta función es la misma que la del programa de las bicicletas pero adaptada a matrices y a la consigna
 #Habría que adaptar todo el resto
 def altaProductos(infoproducto):
+    '''Pide una matriz y agrega elementos a la misma'''
+    codigo, contador = buscarElemento(infoproducto, False)
 
-    codigo = input('Ingrese un codigo unico para el producto (Ingrese "EXIT" para finalizar) ')
-
-    while not codigo.isalnum() or (len(codigo) < 4 or len(codigo) > 10): #Chequeo que este en el limite y sea alfanumerico
-
-        print("Error, codigo invalido")
-        print("El código debe contener solo caracteres alfanuméricos y debe tener entre 4 y 10 caractéres")
-        codigo=input('Ingrese un codigo unico para el producto (Ingrese "EXIT" para finalizar) ')
-
-    while codigo != "EXIT":
-
-        contador = 0
-        if len(infoproducto[1]) > 0: #Este if es para solucionar un index out of range
-            while contador < len(infoproducto[1]) and infoproducto[1][contador] != codigo: #Busco si ya existe el codigo
-                contador += 1
+    while codigo.upper() != "EXIT":
 
         if contador < len(infoproducto[1]):
             print("Error, ese codigo ya está en uso")
@@ -71,7 +155,8 @@ def altaProductos(infoproducto):
             cobertura = input("¿El producto posee cobertura medica? (Si/No) ")
             while (cobertura.upper() != "SI") and (cobertura.upper() != "NO"):
                 cobertura = input("¿El producto posee cobertura medica? (Si/No) ")
-            vencimiento = 30 * random.randint(1,24) 
+            #vencimiento = 30 * random.randint(1,24) 
+            vencimiento = input("¿El producto posee cobertura medica? (Si/No) ")
             print("Fecha aproximada de vencimiento:", vencimiento)
 
             #Meto todo en su respectiva fila de la matriz
@@ -83,114 +168,83 @@ def altaProductos(infoproducto):
             infoproducto[5].append(cobertura)
             infoproducto[6].append(vencimiento)
 
-        codigo = input('Ingrese un codigo unico para el producto (Ingrese "EXIT" para finalizar)')
-        while not codigo.isalnum() or (len(codigo) < 4 or len(codigo) > 10):
-            print("Error, codigo invalido")
-            print("El código debe contener solo caracteres alfanuméricos y debe tener entre 4 y 10 caractéres")
-            codigo=input('Ingrese un codigo unico para el producto (Ingrese "EXIT" para finalizar) ')
+        codigo, contador = buscarElemento(infoproducto, True)
     
 
-############################################################# DE ACA PARA ABAJO FALTA ADAPTAR TODO ##########################################################################################################################
 def modificarStock(infoproducto):
-    codigo=int(input("Ingrese un codigo -1 para finalizar"))
-    while codigo <=0 and codigo != -1:
-        codigo=int(input("Ingrese un codigo -1 para finalizar"))
+    '''Modifica el precioo el stock de un producto'''
+    codigo, contador = buscarElemento(infoproducto, True)
     
-    while codigo != -1:
-        contador = 0
-        while lst_codigos[contador] != codigo and contador < len(lst_codigos) - 1:
-            contador += 1
+    while codigo.upper() != "EXIT":
 
-        if lst_codigos[contador] == codigo:
-            print(f"Qué desea hacer con {lst_nombres[contador]}")
+        if contador < len(infoproducto[1]):
+            print("Qué desea hacer con", infoproducto[0][contador]) 
             print("1- Agregar stock")
             print("2- Quitar stock")
-            operacion = ingresarPositivo("")
-            while operacion < 1 and operacion > 2:
-                print("Opción invalida")
-                print("1- Agregar stock")
-                print("2- Quitar stock")
-                operacion = ingresarPositivo("")
+            print("3- Modificar precio")
+            
+            operacion = ingresar_opcionMenu(1, 3)
 
             if operacion == 1:
-                cambio = int(input(f"Cuántas unidades de {lst_nombres[contador]} desea agregar al stock? ({lst_stock[contador]} unidades restantes) "))
+                cambio = int(input("Cuántas unidades desea agregar al stock?: "))
                 while cambio < 0:
+                    print("Error, la cantidad a agregar debe ser positiva")
+                    cambio = int(input("Cuántas unidades desea agregar al stock?: "))
+                
+                infoproducto[4][contador] += cambio # infoproducto[4] es el stock
+            elif operacion == 2:
+                cambio = int(input("Cuántas unidades desea quitar al stock?: "))
+                while infoproducto[4][contador] - cambio < 0 or cambio < 0:
                     print("ERROR, la cantidad de stock de un producto no puede quedar negativa")
-                    cambio = int(input(f"Cuántas unidades de {lst_nombres[contador]} desea agregar al stock? ({lst_stock[contador]} unidades restantes) "))
-                lst_stock[contador] += cambio
+                    cambio = int(input("Cuántas unidades desea quitar al stock?: "))
+                
+                infoproducto[4][contador] -= cambio
             else:
-                cambio = int(input(f"Cuántas unidades de {lst_nombres[contador]} desea quitar al stock? ({lst_stock[contador]} unidades restantes) "))
-                while lst_stock[contador] - cambio < 0 or cambio < 0:
-                    print("ERROR, la cantidad de stock de un producto no puede quedar negativa")
-                    cambio = int(input(f"Cuántas unidades de {lst_nombres[contador]} desea quitar al stock? ({lst_stock[contador]} unidades restantes) "))
-                lst_stock[contador] -= cambio
+                infoproducto[3][contador] = ingresarPositivo("Ingrese el nuevo precio unitario del producto ", False)
 
-            
-            print(f"Stock de {lst_nombres[contador]} modificado correctamente!")
+            print(infoproducto[0][contador], "modificado correctamente!")
             
         else:
             print("No existe un producto con ese código")
-        codigo=int(input("Ingrese un codigo -1 para finalizar"))
-        while codigo <=0 and codigo != -1:
-            codigo=int(input("Ingrese un codigo -1 para finalizar"))
+            
+        codigo, contador = buscarElemento(infoproducto, False)
 
 def eliminar(infoproducto):
-
-    codigo=int(input("Ingrese un codigo -1 para finalizar"))
-    while codigo <=0 and codigo != -1:
-        codigo=int(input("Ingrese un codigo -1 para finalizar"))
+    '''Elimina un producto entero de la matriz solo si su stock es 0'''
+    codigo, contador = buscarElemento(infoproducto, False)
     
-    while codigo != -1:
-        contador = 0
-        while lst_codigos[contador] != codigo and contador < len(lst_codigos) - 1:
-            contador += 1
+    while codigo.upper() != "EXIT":
 
-        if lst_codigos[contador] == codigo:
-            print(f"Seguro que desea eliminar {lst_nombres[contador]}?")
-            print("1- Si")
-            print("2- Cancelar")
-            operacion = ingresarPositivo("")
-            while operacion < 1 and operacion > 2:
-                print("Opción invalida")
+        if contador < len(infoproducto[1]):
+            if infoproducto[4][contador] != 0:
+                print(f"Seguro que desea eliminar {infoproducto[0][contador]}?")
                 print("1- Si")
                 print("2- Cancelar")
-                operacion = ingresarPositivo("")
+                operacion = ingresarPositivo("",True)
+                while operacion < 1 and operacion > 2:
+                    print("Opción invalida")
+                    print("1- Si")
+                    print("2- Cancelar")
+                    operacion = ingresarPositivo("",True)
 
-            if operacion == 1:
-                print(f"Se eliminó {lst_nombres[contador]}")
-                lst_codigos.pop(contador)
-                lst_nombres.pop(contador)
-                lst_stock.pop(contador)
-               
+                if operacion == 1:
+                    print(f"Se eliminó {infoproducto[0][contador]}")
+                    for fila in infoproducto:
+                        fila.pop(contador)
+                
+                else:
+                    print(f"Eliminación de {infoproducto[0][contador]} cancelada")
             else:
-                print(f"Eliminación de {lst_nombres[contador]} cancelada")
+                print("No se pueden eliminar productos que no tengan 0 de stock")
             
         else:
             print("No existe un producto con ese código")
-        if len(lst_codigos) > 0:    
-            codigo=int(input("Ingrese un codigo -1 para finalizar"))
-            while codigo <=0 and codigo != -1:
-                codigo=int(input("Ingrese un codigo -1 para finalizar"))
+
+        if len(infoproducto[1]) > 0:    
+            codigo, contador = buscarElemento(infoproducto, True)
         else:
             print("No existen más elementos que eliminar")
             codigo = -1
      
-
-def mostrarProductos(infoproducto):
-    '''Muestra por pantalla los productos'''
-    menorstock = []
-    print("-" * 20)
-    print("Código", "" * 5, "Nombre", "" * 5, "Stock")
-    print("-" * 20)
-    for i in range(len(lst_codigos)):
-        print(lst_codigos[i], lst_nombres[i], lst_stock[i])
-        if lst_stock[i] < 5:
-            menorstock.append(i)
-    print("-" * 20)
-    print("-" * 15, "PRODUCTOS POR DEBAJO DEL STOCK MINIMO", "-" * 15)
-    print("-" * 20)
-    print("Código", "" * 5, "Nombre", "" * 5, "Stock")
-    print("-" * 20)
-    for i in range(len(menorstock)):
-        print(lst_codigos[menorstock[i]], lst_nombres[menorstock[i]], lst_stock[menorstock[i]])
-    print("-" * 20)
+ 
+   

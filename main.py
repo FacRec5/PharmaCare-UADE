@@ -9,25 +9,26 @@ def main():
         
         #analizamos opcion de menu
         if opcion ==1:
-            print("Alta de producto")
+            print("Registrar medicamento")
             altaProductos(infoproducto) #Mando la matriz en vez de mandar un montonazo de listas
             
-        elif opcion==2:
-            print("Modificar stock")
+        elif opcion==3:
+            print("Modificar stock o precio")
             if len(infoproducto[0]) > 0:
                 modificarStock(infoproducto)
             else:
                 print("No existe stock que modificar")
-        elif opcion ==3:
-            print("Eliminar")
+        elif opcion ==2:
+            print("Eliminar medicamento")
             if len(infoproducto[0]) > 0:
                 eliminar(infoproducto)
             else:
                 print("No existen elementos para eliminar")
         elif opcion == 4:
-            print("Informes")
+            print("Informe general")
             if len(infoproducto[0]) > 0:
-                mostrarProductos(infoproducto)
+                ordenarLista(infoproducto)
+                imprimirMatriz(infoproducto)
             else:
                 print("No existen elementos")
         
