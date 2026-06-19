@@ -27,7 +27,7 @@ def main():
         elif opcion == 4:
             print("Informe general")
             if len(infoproducto[0]) > 0:
-                ordenarLista(infoproducto)
+                infoproducto = ordenarLista(infoproducto)
                 imprimirMatriz(infoproducto)
             else:
                 print("No existen elementos")

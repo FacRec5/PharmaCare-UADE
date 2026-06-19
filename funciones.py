@@ -64,7 +64,7 @@ def ordenarLista(matriz):
                 
             # CASO 2: Si los vencimientos son iguales, desempatamos por nombre
             elif vencimiento_izq == vencimiento_insertar:
-                if nombre_izq > nombre_insertar:
+                if nombre_izq >= nombre_insertar:
                     # Desplazamos las 7 categorías de j-1 hacia j
                     matriz[0][j] = matriz[0][j-1]
                     matriz[1][j] = matriz[1][j-1]
@@ -83,6 +83,7 @@ def ordenarLista(matriz):
         matriz[4][j] = stock_insertar
         matriz[5][j] = cobertura_insertar
         matriz[6][j] = vencimiento_insertar
+    return matriz
 
 def buscarElemento(infoproducto, nombre):
     '''Pide un producto y lo busca en la lista, fijandose si existe o no y en qué posición se encuentra'''
@@ -114,20 +115,20 @@ def buscarElemento(infoproducto, nombre):
 def ingresar_opcionMenu(desde, hasta):
     '''valida ingresar un valor en el rango desde-hasta
     retorna el valor ingresado del teclado'''
-    op = int(input("Selecicone una opcion:"))
-    while op<desde or op>hasta:
-        print("La opcion seleccionada no es valida")
-        op = int(input("Selecicone una opcion:"))
-    return op
+    op = input("Seleccione una opción: ")
+    while op.isdigit() == False or (int(op)<desde or int(op)>hasta):
+        print("La opción seleccionada no es válida")
+        op = input("Seleccione una opción: ")
+    return int(op)
 
 def ingresarPositivo(msg, entero):
     '''Ingresar del teclado un numero y validar que sea positivo. Recibe como parametros un mensaje a mostrar y un bool para verificar si es entero o no)'''
     if entero:
-        num=int(input(msg))
+        num=input(msg)
     else:
         num=float(input(msg))
 
-    while num<=0:
+    while float(num)<=0:
         print("Error debe ser positivo")
         if entero:
             num=int(input(msg))
@@ -160,15 +161,31 @@ def altaProductos(infoproducto):
             #print("Fecha aproximada de vencimiento:", vencimiento)
 
             #Meto todo en su respectiva fila de la matriz
-            infoproducto[0].append(nombre)
-            infoproducto[1].append(codigo)
-            infoproducto[2].append(laboratorio)
-            infoproducto[3].append(precio)
-            infoproducto[4].append(cantidad)
-            infoproducto[5].append(cobertura)
-            infoproducto[6].append(vencimiento)
+            contador = 0
+            if len(infoproducto[1]) > 0: #Este if es para solucionar un index out of range
+                while contador < len(infoproducto[1]) and (infoproducto[0][contador] != nombre and infoproducto[2][contador] != laboratorio and infoproducto[5][contador] != cobertura and infoproducto[6][contador] != vencimiento): #Busco si ya existe el nombre
+                    contador += 1
+                    
+            if contador < len(infoproducto[1]):
+                print(f"El producto ya está añadido en la lista de productos bajo el codigo {infoproducto[1][contador]}, desea sumar el stock del producto agregado al existente?")
+                print("1- Si")
+                print("2- Cancelar operación")
+                eleccion = ingresar_opcionMenu(1,2)
+                if eleccion == 1:
+                    infoproducto[4][contador] += int(cantidad)
+                    print("Stock sumado con éxito")
+                else:
+                    print("Se canceló la operación")
+            else:
+                infoproducto[0].append(nombre)
+                infoproducto[1].append(codigo)
+                infoproducto[2].append(laboratorio)
+                infoproducto[3].append(precio)
+                infoproducto[4].append(cantidad)
+                infoproducto[5].append(cobertura.upper())
+                infoproducto[6].append(vencimiento)
 
-        codigo, contador = buscarElemento(infoproducto, True)
+        codigo, contador = buscarElemento(infoproducto, False)
     
 
 def modificarStock(infoproducto):
@@ -186,17 +203,17 @@ def modificarStock(infoproducto):
             operacion = ingresar_opcionMenu(1, 3)
 
             if operacion == 1:
-                cambio = int(input("Cuántas unidades desea agregar al stock?: "))
-                while cambio < 0:
-                    print("Error, la cantidad a agregar debe ser positiva")
-                    cambio = int(input("Cuántas unidades desea agregar al stock?: "))
+                cambio = input("Cuántas unidades desea agregar al stock?: ")
+                while cambio.isdigit() == False or int(cambio) < 0:
+                    print("Error, la cantidad a agregar debe ser un número entero positivo")
+                    cambio = input("Cuántas unidades desea agregar al stock?: ")
                 
                 infoproducto[4][contador] += cambio # infoproducto[4] es el stock
             elif operacion == 2:
-                cambio = int(input("Cuántas unidades desea quitar al stock?: "))
-                while infoproducto[4][contador] - cambio < 0 or cambio < 0:
-                    print("ERROR, la cantidad de stock de un producto no puede quedar negativa")
-                    cambio = int(input("Cuántas unidades desea quitar al stock?: "))
+                cambio = input("Cuántas unidades desea quitar al stock?: ")
+                while cambio.isdigit() == False or (infoproducto[4][contador] - int(cambio) < 0 or int(cambio) < 0):
+                    print("ERROR, la cantidad de stock de un producto no puede quedar negativa y el número ingresado debe ser un entero positivo")
+                    cambio = input("Cuántas unidades desea quitar al stock?: ")
                 
                 infoproducto[4][contador] -= cambio
             else:
