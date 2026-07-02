@@ -1,4 +1,4 @@
-import random
+
 
 def imprimirMatriz(matriz):
     '''Imprime una matriz de manera ordenada en forma de cuadro'''
@@ -64,7 +64,7 @@ def ordenarLista(matriz):
                 
             # CASO 2: Si los vencimientos son iguales, desempatamos por nombre
             elif vencimiento_izq == vencimiento_insertar:
-                if nombre_izq >= nombre_insertar:
+                if nombre_izq > nombre_insertar:
                     # Desplazamos las 7 categorías de j-1 hacia j
                     matriz[0][j] = matriz[0][j-1]
                     matriz[1][j] = matriz[1][j-1]
@@ -104,7 +104,7 @@ def buscarElemento(infoproducto, nombre):
         codigo = input('Ingrese el codigo unico o el nombre del producto (Ingrese "EXIT" para finalizar) ')
         contador = 0
         if len(infoproducto[1]) > 0: #Este if es para solucionar un index out of range
-            while contador < len(infoproducto[1]) and (infoproducto[1][contador] != codigo or infoproducto[0][contador] != codigo): #Busco si ya existe el codigo
+            while contador < len(infoproducto[1]) and (infoproducto[1][contador] != codigo and infoproducto[0][contador] != codigo): #Busco si ya existe el codigo
                 contador += 1
 
     return codigo, contador
@@ -121,20 +121,28 @@ def ingresar_opcionMenu(desde, hasta):
         op = input("Seleccione una opción: ")
     return int(op)
 
-def ingresarPositivo(msg, entero):
-    '''Ingresar del teclado un numero y validar que sea positivo. Recibe como parametros un mensaje a mostrar y un bool para verificar si es entero o no)'''
-    if entero:
-        num=input(msg)
+def ingresarPositivo(msg, esEntero):
+    '''Ingresar del teclado un numero y validar que sea positivo.'''
+    
+    num=input(msg)
+    if esEntero:
+        while num.isdigit() == False or int(num) <= 0 or len(str(num)) > 14:
+            print("Error debe ser un número entero positivo de no mas de 14 caracteres")
+            num=input(msg)
     else:
-        num=float(input(msg))
-
-    while float(num)<=0:
-        print("Error debe ser positivo")
-        if entero:
-            num=int(input(msg))
-        else:
-            num=float(input(msg))
+        while esDecimal(num) == False or float(num) <= 0 or len(str(num)) > 14:
+            print("Error debe ser un número positivo de no mas de 14 caracteres")
+            num=input(msg)
     return num
+
+def esDecimal(num):
+    if "." in num:
+        num = num.replace(".", "", 1)
+
+    if num.isdigit() == True:
+        return True
+    else:
+        return False
 
 #Esta función es la misma que la del programa de las bicicletas pero adaptada a matrices y a la consigna
 #Habría que adaptar todo el resto
@@ -150,20 +158,31 @@ def altaProductos(infoproducto):
             
             #Pido todos los valores
             nombre= input("Nombre del producto:")
+            while len(nombre) == 0 or nombre.isspace() or len(nombre) > 14:
+                print("Error: El campo no puede estar vacío ni contener solo espacios. No puede superar los 14 caracteres")
+                nombre= input("Nombre del producto:")
+            
             laboratorio = input("Nombre del laboratorio fabricante del producto: ")
+            while len(laboratorio) == 0 or laboratorio.isspace() or len(laboratorio) > 14:
+                print("Error: El campo no puede estar vacío ni contener solo espacios. No puede superar los 14 caracteres")
+                laboratorio = input("Nombre del laboratorio fabricante del producto: ")
+            
             precio = ingresarPositivo("Ingrese el precio unitario del producto ", False)
+
             cantidad = ingresarPositivo("Ingrese cantidad de stock disponible: ", True)
+
             cobertura = input("¿El producto posee cobertura medica? (Si/No) ")
             while (cobertura.upper() != "SI") and (cobertura.upper() != "NO"):
                 cobertura = input("¿El producto posee cobertura medica? (Si/No) ")
-            #vencimiento = 30 * random.randint(1,24) 
-            vencimiento = ingresarPositivo("Ingresar dias restantes aproximados para el vencimiento del producto ", True)
-            #print("Fecha aproximada de vencimiento:", vencimiento)
+            cobertura = cobertura.upper().strip()
 
-            #Meto todo en su respectiva fila de la matriz
+            vencimiento = ingresarPositivo("Ingresar dias restantes aproximados para el vencimiento del producto ", True)
+           
+
+            #Verifico si el producto ya existe
             contador = 0
-            if len(infoproducto[1]) > 0: #Este if es para solucionar un index out of range
-                while contador < len(infoproducto[1]) and (infoproducto[0][contador] != nombre and infoproducto[2][contador] != laboratorio and infoproducto[5][contador] != cobertura and infoproducto[6][contador] != vencimiento): #Busco si ya existe el nombre
+            if len(infoproducto[1]) > 0: #Antes de revisar la matríz se verifica que hayan elementos
+                while contador < len(infoproducto[1]) and (infoproducto[0][contador].lower().strip() != nombre.lower().strip() or infoproducto[2][contador].lower().strip() != laboratorio.lower().strip() or infoproducto[5][contador] != cobertura.upper().strip() or infoproducto[6][contador] != vencimiento): #Busco si ya existe el producto
                     contador += 1
                     
             if contador < len(infoproducto[1]):
@@ -172,7 +191,7 @@ def altaProductos(infoproducto):
                 print("2- Cancelar operación")
                 eleccion = ingresar_opcionMenu(1,2)
                 if eleccion == 1:
-                    infoproducto[4][contador] += int(cantidad)
+                    infoproducto[4][contador] = str(int(infoproducto[4][contador]) + int(cantidad))
                     print("Stock sumado con éxito")
                 else:
                     print("Se canceló la operación")
@@ -182,7 +201,7 @@ def altaProductos(infoproducto):
                 infoproducto[2].append(laboratorio)
                 infoproducto[3].append(precio)
                 infoproducto[4].append(cantidad)
-                infoproducto[5].append(cobertura.upper())
+                infoproducto[5].append(cobertura)
                 infoproducto[6].append(vencimiento)
 
         codigo, contador = buscarElemento(infoproducto, False)
@@ -208,60 +227,53 @@ def modificarStock(infoproducto):
                     print("Error, la cantidad a agregar debe ser un número entero positivo")
                     cambio = input("Cuántas unidades desea agregar al stock?: ")
                 
-                infoproducto[4][contador] += cambio # infoproducto[4] es el stock
+                infoproducto[4][contador] = str(int(infoproducto[4][contador]) + int(cambio)) # infoproducto[4] es el stock
             elif operacion == 2:
                 cambio = input("Cuántas unidades desea quitar al stock?: ")
-                while cambio.isdigit() == False or (infoproducto[4][contador] - int(cambio) < 0 or int(cambio) < 0):
+                while cambio.isdigit() == False or (int(infoproducto[4][contador]) - int(cambio) < 0 or int(cambio) < 0):
                     print("ERROR, la cantidad de stock de un producto no puede quedar negativa y el número ingresado debe ser un entero positivo")
                     cambio = input("Cuántas unidades desea quitar al stock?: ")
                 
-                infoproducto[4][contador] -= cambio
+                infoproducto[4][contador] = str(int(infoproducto[4][contador]) - int(cambio))
             else:
                 infoproducto[3][contador] = ingresarPositivo("Ingrese el nuevo precio unitario del producto ", False)
 
             print(infoproducto[0][contador], "modificado correctamente!")
             
         else:
-            print("No existe un producto con ese código")
+            print("No existe un producto con ese código o nombre")
             
-        codigo, contador = buscarElemento(infoproducto, False)
+        codigo, contador = buscarElemento(infoproducto, True)
 
 def eliminar(infoproducto):
     '''Elimina un producto entero de la matriz solo si su stock es 0'''
     codigo, contador = buscarElemento(infoproducto, False)
     
     while codigo.upper() != "EXIT":
-
         if contador < len(infoproducto[1]):
-            if infoproducto[4][contador] != 0:
+            if int(infoproducto[4][contador]) == 0:
                 print(f"Seguro que desea eliminar {infoproducto[0][contador]}?")
                 print("1- Si")
                 print("2- Cancelar")
-                operacion = ingresarPositivo("",True)
-                while operacion < 1 and operacion > 2:
-                    print("Opción invalida")
-                    print("1- Si")
-                    print("2- Cancelar")
-                    operacion = ingresarPositivo("",True)
+                operacion = ingresar_opcionMenu(1, 2)
 
                 if operacion == 1:
                     print(f"Se eliminó {infoproducto[0][contador]}")
                     for fila in infoproducto:
                         fila.pop(contador)
-                
                 else:
                     print(f"Eliminación de {infoproducto[0][contador]} cancelada")
             else:
                 print("No se pueden eliminar productos que no tengan 0 de stock")
-            
         else:
             print("No existe un producto con ese código")
 
         if len(infoproducto[1]) > 0:    
-            codigo, contador = buscarElemento(infoproducto, True)
+            codigo, contador = buscarElemento(infoproducto, False) # Cambiado a False para mantener coherencia al salir
         else:
             print("No existen más elementos que eliminar")
-            codigo = -1
+            codigo = "EXIT"
+
      
  
    
